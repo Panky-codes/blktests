@@ -1,0 +1,12 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0+
+# Copyright (C) 2023 Pankaj Raghav
+#
+# NBD tests.
+
+. common/rc
+
+group_requires() {
+	_have_root && _have_module brd
+}
+

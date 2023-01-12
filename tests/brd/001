@@ -1,0 +1,23 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0+
+# Copyright (C) 2023 Pankaj Raghav <p.raghav@samsung.com>
+# A simple fio test to check persistence
+
+. tests/brd/rc
+DESCRIPTION="run a fio workload with verify to check persistence"
+
+QUICK=1
+
+test() {
+	echo "Running ${TEST_NAME}"
+
+	modprobe brd rd_size=102400 rd_nr=1
+
+	_fio_perf --bs=4k --rw=write --name=verifywrites \
+		--filename=/dev/ram0 --size=100M \
+		--verify=crc32 --ioengine=io_uring
+
+	modprobe -r brd
+
+	echo "Test complete"
+}

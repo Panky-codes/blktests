@@ -1,0 +1,40 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0+
+# Copyright (C) 2023 Pankaj Raghav <p.raghav@samsung.com>
+# Verify if the max_parts is modified to divide (1U << MINORBITS) as failing
+# to do some might result in getting the same dev_t. To test the commit:
+# (c8ab422) brd: check and limit max_part par
+
+. tests/brd/rc
+DESCRIPTION="Verify if (1U << MINORBITS) is divisible by max_parts"
+
+QUICK=1
+
+check_minor_range() {
+	local part_range=$1
+	local expected_range=$2
+
+	modprobe brd rd_size=102400 rd_nr=1 max_part=$part_range
+
+	range=$(cat /sys/block/ram0/range)
+
+	if [[ $range != $expected_range ]]; then
+		echo "(1 << MINORBITS) not divisible by minor range"
+	fi
+
+	modprobe -r brd
+
+
+}
+
+test() {
+	echo "Running ${TEST_NAME}"
+
+	check_minor_range 245 256
+
+	check_minor_range 95 128
+
+	check_minor_range 45 64
+
+	echo "Test complete"
+}
